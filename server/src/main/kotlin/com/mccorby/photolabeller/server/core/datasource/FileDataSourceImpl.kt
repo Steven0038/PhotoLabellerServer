@@ -16,7 +16,7 @@ class FileDataSourceImpl(private val rootDir: Path): FileDataSource {
     companion object {
         const val defaultRoundDir = "currentRound"
         const val currentRoundFileName = "currentRound.json"
-        const val defaultModelFile = "model.zip"
+        const val defaultModelFile = "model.zip" //TODO
         const val defaultAllUpdatesFileName = "updates.csv"
     }
 

@@ -19,3 +19,4 @@ build
 *.jar
 /gradlew
 /gradlew.bat
+/.idea/

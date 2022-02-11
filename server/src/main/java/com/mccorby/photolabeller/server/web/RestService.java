@@ -1,7 +1,7 @@
 package com.mccorby.photolabeller.server.web;
 
-import com.mccorby.photolabeller.server.*;
 import com.mccorby.photolabeller.server.BasicRoundController;
+import com.mccorby.photolabeller.server.FederatedServerImpl;
 import com.mccorby.photolabeller.server.core.FederatedAveragingStrategy;
 import com.mccorby.photolabeller.server.core.datasource.*;
 import com.mccorby.photolabeller.server.core.domain.model.*;
@@ -12,7 +12,10 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Properties;
 
@@ -54,6 +57,7 @@ public class RestService {
     @Path("/available")
     @Produces(MediaType.TEXT_PLAIN)
     public String available() {
+        System.out.print("available");
         return "yes";
     }
 
@@ -61,6 +65,7 @@ public class RestService {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Path("/model")
     public Boolean pushGradient(@FormDataParam("file") InputStream is, @FormDataParam("samples") int samples) throws IOException {
+        System.out.print("pushGradient");
         if (is == null) {
             return false;
         } else {
@@ -74,6 +79,7 @@ public class RestService {
     @Path("/model")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response getFile() {
+        System.out.print("getFile");
         File file = federatedServer.getModelFile();
         String fileName = federatedServer.getUpdatingRound().getModelVersion() + ".zip";
         Response.ResponseBuilder response = Response.ok(file);
@@ -85,6 +91,7 @@ public class RestService {
     @Path("/currentRound")
     @Produces(MediaType.APPLICATION_JSON)
     public String getCurrentRound() {
+        System.out.print("getCurrentRound()");
         return federatedServer.getUpdatingRoundAsJson();
     }
 }

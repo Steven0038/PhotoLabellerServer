@@ -16,31 +16,48 @@ import java.util.*
 
 
 fun main(args: Array<String>) {
-    if (args.isNotEmpty() && args[0] == "train") {
+    val argumentOne = "train"
+    val argumentTwo = "D:/workspace/phModel"
+    val argumentThree = "web"
+
+//    if (args.isNotEmpty() && args[0] == "train") {
+    if (argumentOne == "train") {
         val seed = 123
         val iterations = 1
         val numLabels = CifarLoader.NUM_LABELS
         val saveFile = "cifar_federated-${Date().time}.zip"
 
-        val numEpochs = 50
+//        val numEpochs = 50
+        val numEpochs = 512
+//        val numEpochs = 1 // TODO
         val numSamples = 10000
 
         val config = SharedConfig(32, 3, 100)
         val trainer = CifarTrainer(config)
-        var model = trainer.createModel(seed, iterations, numLabels)
-        model = trainer.train(model, numSamples, numEpochs, getVisualization(args.getOrNull(2)))
-
-        if (args[1].isNotEmpty()) {
-            println("Saving model to ${args[1]}")
-            trainer.saveModel(model, args[1] + "/$saveFile")
+//        var model = trainer.createModel(seed, iterations, numLabels)
+        var model = trainer.createModel2(seed, iterations, numLabels) //TODO
+//        model = trainer.train(model, numSamples, numEpochs, getVisualization(args.getOrNull(2)))
+        model = trainer.train(model, numSamples, numEpochs, getVisualization(argumentThree))
+//
+////        if (args[1].isNotEmpty()) {
+        if (argumentTwo.isNotEmpty()) {
+//            println("Saving model to ${args[1]}")
+            println("Saving model to $argumentTwo")
+//            trainer.saveModel(model, args[1] + "/$saveFile")
+            trainer.saveModel(model, argumentTwo + "/$saveFile")
         }
 
-        val eval = trainer.eval(model, numSamples)
-        println(eval.stats())
+//        val eval = trainer.eval(model, numSamples)//FIXME: error
+//        println(eval.stats())
 
     } else {
-        predict(args[0], args[1])
+//        predict(args[0], args[1])
+        predict(argumentOne, argumentTwo)
     }
+
+
+    predict("D:/workspace/phModel/cifar_federated-1618113579660.zip", "D:/workspace/phModel/cat.jpg") //TODO
+//    predict("D:/workspace/phModel/model.zip", "D:/workspace/phModel/cat.jpg") //TODO
 }
 
 fun predict(modelFile: String, imageFile: String) {

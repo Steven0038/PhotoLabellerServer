@@ -7,6 +7,7 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
+    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
 }
 
 sourceSets {
@@ -15,6 +16,8 @@ sourceSets {
 
 dependencies {
     implementation kotlin_stdlib
+//    implementation "org.nd4j:nd4j-native-platform:1.0.0-beta7"
+//    implementation "org.deeplearning4j:deeplearning4j-core:1.0.0-beta7"
     implementation nd4j
     implementation dl4j_core
     implementation dl4j_nlp
@@ -43,6 +46,7 @@ dependencies {
     testImplementation kotlin_test
     testImplementation mockito
     testImplementation junit
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 
 compileKotlin {
@@ -50,4 +54,14 @@ compileKotlin {
 }
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
+}
+buildscript {
+    ext.kotlin_version = '1.5.0-M1'
+    repositories {
+        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
 }
