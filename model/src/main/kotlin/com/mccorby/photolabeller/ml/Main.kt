@@ -2,8 +2,8 @@ package com.mccorby.photolabeller.ml
 
 import com.mccorby.photolabeller.ml.trainer.CifarTrainer
 import com.mccorby.photolabeller.ml.trainer.SharedConfig
+import com.mccorby.photolabeller.ml.trainer.WeatherTrainer
 import org.bytedeco.javacpp.opencv_core
-import org.datavec.image.loader.CifarLoader
 import org.datavec.image.loader.NativeImageLoader
 import org.deeplearning4j.optimize.api.IterationListener
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener
@@ -16,48 +16,31 @@ import java.util.*
 
 
 fun main(args: Array<String>) {
-    val argumentOne = "train"
-    val argumentTwo = "D:/workspace/phModel"
-    val argumentThree = "web"
-
-//    if (args.isNotEmpty() && args[0] == "train") {
-    if (argumentOne == "train") {
+    if (args.isNotEmpty() && args[0] == "train") {
         val seed = 123
         val iterations = 1
-        val numLabels = CifarLoader.NUM_LABELS
-        val saveFile = "cifar_federated-${Date().time}.zip"
-
+        val numLabels = 4
+        val saveFile = "weather_federated-${Date().time}.zip"
+        val trainFileDir = "E:\\dataset\\MultiClassWeatherDataset" // https://www.kaggle.com/pratik2901/multiclass-weather-dataset
 //        val numEpochs = 50
-        val numEpochs = 512
-//        val numEpochs = 1 // TODO
-        val numSamples = 10000
-
+        val numEpochs = 5
         val config = SharedConfig(32, 3, 100)
-        val trainer = CifarTrainer(config)
-//        var model = trainer.createModel(seed, iterations, numLabels)
-        var model = trainer.createModel2(seed, iterations, numLabels) //TODO
+        val trainer = WeatherTrainer(config)
+        var model = trainer.createModel(seed, iterations, numLabels)
 //        model = trainer.train(model, numSamples, numEpochs, getVisualization(args.getOrNull(2)))
-        model = trainer.train(model, numSamples, numEpochs, getVisualization(argumentThree))
-//
-////        if (args[1].isNotEmpty()) {
-        if (argumentTwo.isNotEmpty()) {
-//            println("Saving model to ${args[1]}")
-            println("Saving model to $argumentTwo")
-//            trainer.saveModel(model, args[1] + "/$saveFile")
-            trainer.saveModel(model, argumentTwo + "/$saveFile")
+        model = trainer.train(model, numEpochs, trainFileDir)
+
+        if (args[1].isNotEmpty()) {
+            println("Saving model to ${args[1]}")
+            trainer.saveModel(model, args[1] + "/$saveFile")
         }
 
-//        val eval = trainer.eval(model, numSamples)//FIXME: error
+//        val eval = trainer.eval(model, numSamples)
 //        println(eval.stats())
 
     } else {
-//        predict(args[0], args[1])
-        predict(argumentOne, argumentTwo)
+        predict(args[0], args[1])
     }
-
-
-    predict("D:/workspace/phModel/cifar_federated-1618113579660.zip", "D:/workspace/phModel/cat.jpg") //TODO
-//    predict("D:/workspace/phModel/model.zip", "D:/workspace/phModel/cat.jpg") //TODO
 }
 
 fun predict(modelFile: String, imageFile: String) {
