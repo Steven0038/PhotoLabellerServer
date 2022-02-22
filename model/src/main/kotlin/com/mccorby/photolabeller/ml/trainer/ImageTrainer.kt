@@ -6,7 +6,6 @@ import org.datavec.api.split.FileSplit
 import org.datavec.image.loader.CifarLoader
 import org.datavec.image.loader.NativeImageLoader
 import org.datavec.image.recordreader.ImageRecordReader
-import org.datavec.image.transform.*
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator
 import org.deeplearning4j.datasets.iterator.impl.CifarDataSetIterator
 import org.deeplearning4j.eval.Evaluation
@@ -19,7 +18,6 @@ import org.deeplearning4j.nn.conf.inputs.InputType
 import org.deeplearning4j.nn.conf.layers.*
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
 import org.deeplearning4j.nn.weights.WeightInit
-import org.deeplearning4j.optimize.api.IterationListener
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener
 import org.deeplearning4j.util.ModelSerializer
 import org.nd4j.linalg.activations.Activation
@@ -31,7 +29,7 @@ import java.io.File
 import java.util.*
 
 
-class WeatherTrainer(private val config: SharedConfig) {
+class ImageTrainer(private val config: SharedConfig) {
 
     fun createModel(seed: Int, iterations: Int, numLabels: Int): MultiLayerNetwork {
         val modelConf = NeuralNetConfiguration.Builder()
@@ -163,13 +161,12 @@ class WeatherTrainer(private val config: SharedConfig) {
 //            .build()
 
         return MultiLayerNetwork(modelConf)
-//            .also { it.init() }
+            .also { it.init() }
     }
 
-    fun train(model: MultiLayerNetwork, epochs:Int, fileDir: String): MultiLayerNetwork {
+    fun train(model: MultiLayerNetwork, epochs:Int, batchSize: Int = 10, fileDir: String): MultiLayerNetwork {
         //R,G,B channels
         val channels = 3
-        val batchSize = 10
 
         //load files and split
 //        val parentDir = File("E:\\dataset\\MultiClassWeatherDataset")
@@ -189,16 +186,15 @@ class WeatherTrainer(private val config: SharedConfig) {
         val trainData = inputSplits[0]
         val testData = inputSplits[1]
 
-        val randNumGen = Random(12345)
-
         //Data augmentation
-        val transform: ImageTransform = MultiImageTransform(
-            randNumGen,
-            FlipImageTransform(Random(42)),
-            FlipImageTransform(Random(123)),
-            WarpImageTransform(Random(42), 42F),
-            RotateImageTransform(Random(42), 40F)
-        )
+//        val randNumGen = Random(12345)
+//        val transform: ImageTransform = MultiImageTransform(
+//            randNumGen,
+//            FlipImageTransform(Random(42)),
+//            FlipImageTransform(Random(123)),
+//            WarpImageTransform(Random(42), 42F),
+//            RotateImageTransform(Random(42), 40F)
+//        )
 
         val scaler: DataNormalization = ImagePreProcessingScaler(0.0, 1.0)
 
@@ -209,7 +205,6 @@ class WeatherTrainer(private val config: SharedConfig) {
         scaler.fit(dataSetIterator)
         dataSetIterator.preProcessor = scaler
 
-        model.init()
         model.setListeners(ScoreIterationListener(100)) //PerformanceListener for optimized training
 
         for (i in 0 until epochs) {
@@ -217,6 +212,17 @@ class WeatherTrainer(private val config: SharedConfig) {
             model.fit(dataSetIterator)
         }
 
+        //train with transformations
+//        imageRecordReader.initialize(trainData, transform)
+//        val dataSetIterator2: DataSetIterator = RecordReaderDataSetIterator(imageRecordReader, batchSize, 1, numLabels)
+//        scaler.fit(dataSetIterator2)
+//        dataSetIterator.preProcessor = scaler
+//        for (i in 0 until epochs) {
+//            println("Epoch=====================$i")
+//            model.fit(dataSetIterator)
+//        }
+
+        // evaluation of model
         imageRecordReader.initialize(testData)
         val evaluation = model.evaluate(dataSetIterator)
         println("args = [" + evaluation.stats().toString() + "]")

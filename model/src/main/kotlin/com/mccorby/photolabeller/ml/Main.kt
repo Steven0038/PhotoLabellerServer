@@ -2,7 +2,7 @@ package com.mccorby.photolabeller.ml
 
 import com.mccorby.photolabeller.ml.trainer.CifarTrainer
 import com.mccorby.photolabeller.ml.trainer.SharedConfig
-import com.mccorby.photolabeller.ml.trainer.WeatherTrainer
+import com.mccorby.photolabeller.ml.trainer.ImageTrainer
 import org.bytedeco.javacpp.opencv_core
 import org.datavec.image.loader.NativeImageLoader
 import org.deeplearning4j.optimize.api.IterationListener
@@ -19,16 +19,40 @@ fun main(args: Array<String>) {
     if (args.isNotEmpty() && args[0] == "train") {
         val seed = 123
         val iterations = 1
-        val numLabels = 4
-        val saveFile = "weather_federated-${Date().time}.zip"
-        val trainFileDir = "E:\\dataset\\MultiClassWeatherDataset" // https://www.kaggle.com/pratik2901/multiclass-weather-dataset
-//        val numEpochs = 50
-        val numEpochs = 5
+
+        // weather
+//        val numLabels = 4
+//        val numEpochs = 5
+//        val batchSize = 10
+//        val saveFile = "weather_federated-${Date().time}.zip"
+//        val trainFileDir = "E:\\dataset\\MultiClassWeatherDataset" // https://www.kaggle.com/pratik2901/multiclass-weather-dataset
+
+        // sp-weather
+//        val numLabels = 5
+//        val numEpochs = 5
+//        val batchSize = 20
+//        val saveFile = "sp_weather_federated-${Date().time}.zip"
+//        val trainFileDir = "E:\\dataset\\SP-Weather" // https://github.com/ZebaKhanam91/SP-Weather
+
+        // customize cifar
+        val numLabels = 10
+        val numEpochs = 50
+        val batchSize = 100
+        val saveFile = "cifar10_federated-${Date().time}.zip"
+        val trainFileDir = "E:\\dataset\\cifar10_dl4j.v1\\train" // https://www.cs.toronto.edu/~kriz/cifar.html
+
+        // customized car body type
+//        val numLabels = 2 // largeCar: Wagon,SUV,Minivan,Cap,Van; smallCar: Coupe,Sedan,Hatchback
+//        val numEpochs = 4
+//        val batchSize = 30
+//        val saveFile = "car_body_federated-${Date().time}.zip"
+//        val trainFileDir = "E:\\dataset\\StanfordCarBodyTypeData\\stanford_cars_type" // https://www.kaggle.com/mayurmahurkar/stanford-car-body-type-data
+
         val config = SharedConfig(32, 3, 100)
-        val trainer = WeatherTrainer(config)
+        val trainer = ImageTrainer(config)
         var model = trainer.createModel(seed, iterations, numLabels)
 //        model = trainer.train(model, numSamples, numEpochs, getVisualization(args.getOrNull(2)))
-        model = trainer.train(model, numEpochs, trainFileDir)
+        model = trainer.train(model, numEpochs, batchSize, trainFileDir)
 
         if (args[1].isNotEmpty()) {
             println("Saving model to ${args[1]}")
@@ -72,7 +96,8 @@ private fun getVisualization(visualization: String?): IterationListener {
             val uiServer = UIServer.getInstance()
 
             //Configure where the network information (gradients, score vs. time etc) is to be stored. Here: store in memory.
-            val statsStorage = InMemoryStatsStorage()         //Alternative: new FileStatsStorage(File), for saving and loading later
+            val statsStorage =
+                InMemoryStatsStorage()         //Alternative: new FileStatsStorage(File), for saving and loading later
 
             //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
             uiServer.attach(statsStorage)
