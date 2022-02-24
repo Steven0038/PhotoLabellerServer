@@ -10,25 +10,38 @@ import org.nd4j.linalg.api.ndarray.INDArray
 import org.nd4j.linalg.factory.Nd4j
 import java.io.ByteArrayOutputStream
 
-class FederatedAveragingStrategy(private val repository: ServerRepository, private val layerIndex: Int) : UpdatesStrategy {
+class FederatedAveragingStrategy(private val repository: ServerRepository, private val layerIndex: Int) :
+    UpdatesStrategy {
 
     override fun processUpdates(): ByteArrayOutputStream {
-        val totalSamples:Int = repository.getTotalSamples() //取得所有客户端上传模型总数
-        val model:MultiLayerNetwork = ModelSerializer.restoreMultiLayerNetwork(repository.retrieveModel()) //取得当前伺服器端模型
-        val shape:IntArray = model.getLayer(layerIndex).params().shape() //取得指定层数(当前为3)参数的 ndArray 形状
+        println("[processUpdates]...")
 
-        // 计算需要更新的 INDArray 参数
-        val sumUpdates = repository.listClientUpdates().fold( //将当前轮数上传的客户端模型列表作为fold函数输入
+        val outputStream = ByteArrayOutputStream() //以下储存下轮模型, 并准备在之后推送给客户端
+        try {
+            val totalSamples: Int = repository.getTotalSamples() //取得所有客户端上传模型总数
+            val model: MultiLayerNetwork =
+                ModelSerializer.restoreMultiLayerNetwork(repository.retrieveModel()) //取得当前伺服器端模型
+            val shape = model.getLayer(layerIndex).params().shape() //取得指定层数(当前为3)参数的 ndArray 形状
+
+            val clientUpdates = repository.listClientUpdates()
+
+            // 计算需要更新的 INDArray 参数
+            val sumUpdates = clientUpdates.fold( //将当前轮数上传的客户端模型列表作为fold函数输入
                 Nd4j.zeros(shape[0], shape[1]), //创建累加用 ndarray 初始值
                 { sumUpdates, next -> processSingleUpdate(next, totalSamples, sumUpdates) } //单一客户模型经个别处理后将回传值加入上列初始值
-        )
+            )
 
-        model.getLayer(layerIndex).setParams(sumUpdates) // 更新模型指定层数之参数为联邦平均过后之INDArray参数
-        val outputStream = ByteArrayOutputStream() //以下储存下轮模型, 并准备在之后推送给客户端
-        ModelSerializer.writeModel(model, outputStream, true)
-        repository.storeModel(outputStream.toByteArray())
+            model.getLayer(layerIndex).setParams(sumUpdates) // 更新模型指定层数之参数为联邦平均过后之INDArray参数
+
+            ModelSerializer.writeModel(model, outputStream, true)
+            repository.storeModel(outputStream.toByteArray())
+        } catch (e: Exception) {
+            println(e)
+        }
+
         return outputStream
     }
+
     // 累加个别客户端上传模型之参数
     private fun processSingleUpdate(next: ClientUpdate, totalSamples: Int, sumUpdates: INDArray): INDArray {
         val update = Nd4j.fromByteArray(FileUtils.readFileToByteArray(next.file)) //读取单一客户端模型檔案后转换INDArray
