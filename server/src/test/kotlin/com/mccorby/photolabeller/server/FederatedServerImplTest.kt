@@ -21,7 +21,7 @@ internal class FederatedServerImplTest {
         val properties = mock<Properties>()
         val modelUpdate = byteArrayOf()
         val samples = 10
-        whenever(roundController.checkCurrentRound()).thenReturn(false)
+        whenever(roundController.checkCurrentRoundAndIsMinUpdatesLargerThanClientUpdates()).thenReturn(false)
 
         // When
         val cut = FederatedServerImpl.instance

@@ -37,7 +37,7 @@ class BasicRoundController(private val repository: ServerRepository,
         return true
     }
 
-    override fun checkCurrentRound() = currentRound?.let { it.minUpdates > numberOfClientUpdates } ?: false
+    override fun checkCurrentRoundAndIsMinUpdatesLargerThanClientUpdates() = currentRound?.let { it.minUpdates > numberOfClientUpdates } ?: false
 
     override fun onNewClientUpdate() {
         numberOfClientUpdates++

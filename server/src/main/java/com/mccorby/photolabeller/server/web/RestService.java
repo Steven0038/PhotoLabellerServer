@@ -57,7 +57,7 @@ public class RestService {
     @Path("/available")
     @Produces(MediaType.TEXT_PLAIN)
     public String available() {
-        System.out.print("available");
+        System.out.println("[available]");
         return "yes";
     }
 
@@ -65,7 +65,7 @@ public class RestService {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Path("/model")
     public Boolean pushGradient(@FormDataParam("file") InputStream is, @FormDataParam("samples") int samples) throws IOException {
-        System.out.print("pushGradient");
+        System.out.println("[pushGradient] samples: " + samples);
         if (is == null) {
             return false;
         } else {
@@ -79,7 +79,7 @@ public class RestService {
     @Path("/model")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response getFile() {
-        System.out.print("getFile");
+        System.out.println("[getFile]");
         File file = federatedServer.getModelFile();
         String fileName = federatedServer.getUpdatingRound().getModelVersion() + ".zip";
         Response.ResponseBuilder response = Response.ok(file);

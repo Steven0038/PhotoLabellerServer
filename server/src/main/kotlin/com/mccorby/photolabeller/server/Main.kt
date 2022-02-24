@@ -8,6 +8,9 @@ import java.io.FileInputStream
 import java.nio.file.Paths
 import java.util.*
 
+/**
+ * force executing one round federated average
+ */
 fun main(args: Array<String>) {
     val properties = Properties()
     properties.load(FileInputStream("./server/local.properties"))

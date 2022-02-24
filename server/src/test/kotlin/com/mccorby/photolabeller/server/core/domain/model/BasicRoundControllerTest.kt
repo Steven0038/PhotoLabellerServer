@@ -53,7 +53,7 @@ internal class BasicRoundControllerTest {
         actionsToInvalidateCurrentRound()
 
         // When
-        val result = cut.checkCurrentRound()
+        val result = cut.checkCurrentRoundAndIsMinUpdatesLargerThanClientUpdates()
 
         // Then
         assertFalse(result)
