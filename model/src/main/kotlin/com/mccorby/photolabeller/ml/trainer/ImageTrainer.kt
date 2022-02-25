@@ -10,7 +10,6 @@ import org.deeplearning4j.nn.api.OptimizationAlgorithm
 import org.deeplearning4j.nn.conf.ConvolutionMode
 import org.deeplearning4j.nn.conf.GradientNormalization
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration
-import org.deeplearning4j.nn.conf.Updater
 import org.deeplearning4j.nn.conf.inputs.InputType
 import org.deeplearning4j.nn.conf.layers.*
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
@@ -21,6 +20,7 @@ import org.nd4j.linalg.activations.Activation
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler
+import org.nd4j.linalg.learning.config.Adam
 import org.nd4j.linalg.lossfunctions.LossFunctions
 import java.io.File
 import java.util.*
@@ -31,7 +31,7 @@ class ImageTrainer(private val config: SharedConfig) {
     fun createModel(seed: Int, iterations: Int, numLabels: Int): MultiLayerNetwork {
         val modelConf = NeuralNetConfiguration.Builder()
                 .seed(seed.toLong())
-                .updater(Updater.ADAM)
+                .updater(Adam())
 //                .iterations(iterations)
                 .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // normalize to prevent vanishing or exploding gradients
                 .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
@@ -65,8 +65,6 @@ class ImageTrainer(private val config: SharedConfig) {
                         .weightInit(WeightInit.XAVIER)
                         .activation(Activation.SOFTMAX)
                         .build())
-                .backprop(true)
-                .pretrain(false)
                 .setInputType(InputType.convolutional(config.imageSize.toLong(), config.imageSize.toLong(),
                     config.channels.toLong()
                 ))

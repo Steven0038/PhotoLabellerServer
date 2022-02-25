@@ -12,45 +12,45 @@ fun main(args: Array<String>) {
     val iterations = 1
 
     // Harvard Weather Image Recognition
-//        val numLabels = 11
-//        val numEpochs = 20 // 0.6255
-//        val batchSize = 25
-//        val saveFile = "hv_weather_federated-${Date().time}.zip"
-//        val trainFileDir = "E:\\dataset\\WeatherImageRecognition" // https://www.kaggle.com/jehanbhathena/weather-dataset
+        val numLabels = 11
+        val numEpochs = 20
+        val batchSize = 25
+        val saveFile = "hv_weather_federated_beta3-${Date().time}.zip"
+        val trainFileDir = "E:\\dataset\\WeatherImageRecognition" // https://www.kaggle.com/jehanbhathena/weather-dataset
 
     // multi weather
-    val numLabels = 4
-    val numEpochs = 5
-    val batchSize = 10
-    val saveFile = "weather_federated_beta3-${Date().time}.zip"
-    val trainFileDir = "E:\\dataset\\MultiClassWeatherDataset" // https://www.kaggle.com/pratik2901/multiclass-weather-dataset
+//    val numLabels = 4
+//    val numEpochs = 5
+//    val batchSize = 10
+//    val saveFile = "weather_federated_beta3-${Date().time}.zip"
+//    val trainFileDir = "E:\\dataset\\MultiClassWeatherDataset" // https://www.kaggle.com/pratik2901/multiclass-weather-dataset
 
     // sp-weather
 //        val numLabels = 5
 //        val numEpochs = 5
 //        val batchSize = 20
-//        val saveFile = "sp_weather_federated-${Date().time}.zip"
+//        val saveFile = "sp_weather_federated_beta3-${Date().time}.zip"
 //        val trainFileDir = "E:\\dataset\\SP-Weather" // https://github.com/ZebaKhanam91/SP-Weather
 
     // customize cifar
 //        val numLabels = 10
 //        val numEpochs = 50
 //        val batchSize = 100
-//        val saveFile = "cifar10_federated-${Date().time}.zip"
+//        val saveFile = "cifar10_federated_beta3-${Date().time}.zip"
 //        val trainFileDir = "E:\\dataset\\cifar10_dl4j.v1\\train" // https://www.cs.toronto.edu/~kriz/cifar.html
 
     // customized car body type
 //        val numLabels = 2 // largeCar: Wagon,SUV,Minivan,Cap,Van; smallCar: Coupe,Sedan,Hatchback
 //        val numEpochs = 4
 //        val batchSize = 30
-//        val saveFile = "car_body_federated-${Date().time}.zip"
+//        val saveFile = "car_body_federated_beta3-${Date().time}.zip"
 //        val trainFileDir = "E:\\dataset\\StanfordCarBodyTypeData\\stanford_cars_type" // https://www.kaggle.com/mayurmahurkar/stanford-car-body-type-data
 
     // Vehicle Detection Image Set
 //        val numLabels = 2 // vehicle, non-vehicle
 //        val numEpochs = 4
 //        val batchSize = 30
-//        val saveFile = "vehicle_detection-${Date().time}.zip"
+//        val saveFile = "vehicle_detection_beta3-${Date().time}.zip"
 //        val trainFileDir = "E:\\dataset\\VehicleDetectionImageSet" // https://www.kaggle.com/brsdincer/vehicle-detection-image-set
 
     val config = SharedConfig(32, 3, 100)
