@@ -24,6 +24,9 @@ public class RestService {
 
     private static FederatedServer federatedServer;
 
+    /**
+     * initialize classes and file data source when server start
+     */
     public RestService() throws IOException {
         if (federatedServer == null) {
             // TODO Inject!
@@ -53,6 +56,9 @@ public class RestService {
         }
     }
 
+    /**
+     * server health check
+     */
     @GET
     @Path("/available")
     @Produces(MediaType.TEXT_PLAIN)
@@ -61,6 +67,12 @@ public class RestService {
         return "yes";
     }
 
+    /**
+     * client POST on device trained model gradients
+     * @param is model gradients
+     * @param samples the number of image size to train this model gradients
+     * @return [Boolean] update efficient or not
+     */
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Path("/model")
@@ -75,6 +87,11 @@ public class RestService {
         }
     }
 
+    /**
+     * client get model if client side have no embedded model exits when app starts
+     *
+     * @return model data file
+     */
     @GET
     @Path("/model")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
@@ -87,11 +104,15 @@ public class RestService {
         return response.build();
     }
 
+    /**
+     * get the current training round data, from currentRound.json
+     * @return [String] current round
+     */
     @GET
     @Path("/currentRound")
     @Produces(MediaType.APPLICATION_JSON)
     public String getCurrentRound() {
-        System.out.print("getCurrentRound()");
+        System.out.print("[getCurrentRound()]");
         return federatedServer.getUpdatingRoundAsJson();
     }
 }

@@ -144,4 +144,42 @@ class ImageTrainer(private val config: SharedConfig) {
     fun saveModel(model: MultiLayerNetwork, location: String) {
         ModelSerializer.writeModel(model, File(location), true)
     }
+
+    fun eval(model: MultiLayerNetwork, batchSize: Int, trainFileDir: String){
+        //R,G,B channels
+        val channels = 3
+
+        //load files and split
+        val parentDir = File(trainFileDir)
+        val fileSplit = FileSplit(parentDir, NativeImageLoader.ALLOWED_FORMATS, Random(42))
+        val numLabels = fileSplit.rootDir.listFiles { obj: File -> obj.isDirectory }.size
+
+        //identify labels in the path
+        val parentPathLabelGenerator = ParentPathLabelGenerator()
+
+        //file split to train/test using the weights.
+        val balancedPathFilter =
+            BalancedPathFilter(Random(42), NativeImageLoader.ALLOWED_FORMATS, parentPathLabelGenerator)
+        val inputSplits = fileSplit.sample(balancedPathFilter, 80.0, 20.0)
+
+        //get train/test data
+        val trainData = inputSplits[0]
+        val testData = inputSplits[1]
+
+        val scaler: DataNormalization = ImagePreProcessingScaler(0.0, 1.0)
+
+        //train without transformations
+        val imageRecordReader = ImageRecordReader(config.imageSize.toLong(), config.imageSize.toLong(), channels.toLong(), parentPathLabelGenerator)
+        imageRecordReader.initialize(trainData, null)
+        val dataSetIterator: DataSetIterator = RecordReaderDataSetIterator(imageRecordReader, batchSize, 1, numLabels)
+        scaler.fit(dataSetIterator)
+        dataSetIterator.preProcessor = scaler
+
+        model.setListeners(ScoreIterationListener(100)) //PerformanceListener for optimized training
+
+        // evaluation of model
+        imageRecordReader.initialize(testData)
+        val evaluation: org.nd4j.evaluation.classification.Evaluation = model.evaluate(dataSetIterator)
+        println("args = [" + evaluation.stats().toString() + "]")
+    }
 }
