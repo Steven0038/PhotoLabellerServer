@@ -28,7 +28,7 @@ import java.util.*
 
 class ImageTrainer(private val config: SharedConfig) {
 
-    fun createModel(seed: Int, iterations: Int, numLabels: Int): MultiLayerNetwork {
+    fun createModel(seed: Int, numLabels: Int): MultiLayerNetwork {
         val modelConf = NeuralNetConfiguration.Builder()
                 .seed(seed.toLong())
                 .updater(Adam())
@@ -75,39 +75,29 @@ class ImageTrainer(private val config: SharedConfig) {
     }
 
     fun train(model: MultiLayerNetwork, epochs:Int, batchSize: Int = 10, fileDir: String): MultiLayerNetwork {
-        //R,G,B channels
+        // R,G,B channels
         val channels = 3
 
-        //load files and split
+        // 读取目标资料夹load files and split
         val parentDir = File(fileDir)
         val fileSplit = FileSplit(parentDir, NativeImageLoader.ALLOWED_FORMATS, Random(42))
         val numLabels = fileSplit.rootDir.listFiles { obj: File -> obj.isDirectory }.size
 
-        //identify labels in the path
+        // identify labels in the path
         val parentPathLabelGenerator = ParentPathLabelGenerator()
 
-        //file split to train/test using the weights.
+        // file split to train/test using the weights.
         val balancedPathFilter =
             BalancedPathFilter(Random(42), NativeImageLoader.ALLOWED_FORMATS, parentPathLabelGenerator)
         val inputSplits = fileSplit.sample(balancedPathFilter, 80.0, 20.0)
 
-        //get train/test data
+        // get train/test data
         val trainData = inputSplits[0]
         val testData = inputSplits[1]
 
-        //Data augmentation
-//        val randNumGen = Random(12345)
-//        val transform: ImageTransform = MultiImageTransform(
-//            randNumGen,
-//            FlipImageTransform(Random(42)),
-//            FlipImageTransform(Random(123)),
-//            WarpImageTransform(Random(42), 42F),
-//            RotateImageTransform(Random(42), 40F)
-//        )
-
         val scaler: DataNormalization = ImagePreProcessingScaler(0.0, 1.0)
 
-        //train without transformations
+        // train without transformations
         val imageRecordReader = ImageRecordReader(config.imageSize.toLong(), config.imageSize.toLong(), channels.toLong(), parentPathLabelGenerator)
         imageRecordReader.initialize(trainData, null)
         val dataSetIterator: DataSetIterator = RecordReaderDataSetIterator(imageRecordReader, batchSize, 1, numLabels)
@@ -120,16 +110,6 @@ class ImageTrainer(private val config: SharedConfig) {
             println("Epoch=====================$i")
             model.fit(dataSetIterator)
         }
-
-        //train with transformations
-//        imageRecordReader.initialize(trainData, transform)
-//        val dataSetIterator2: DataSetIterator = RecordReaderDataSetIterator(imageRecordReader, batchSize, 1, numLabels)
-//        scaler.fit(dataSetIterator2)
-//        dataSetIterator.preProcessor = scaler
-//        for (i in 0 until epochs) {
-//            println("Epoch=====================$i")
-//            model.fit(dataSetIterator)
-//        }
 
         // evaluation of model
         imageRecordReader.initialize(testData)
