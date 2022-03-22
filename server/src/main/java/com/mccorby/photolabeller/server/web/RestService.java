@@ -1,5 +1,7 @@
 package com.mccorby.photolabeller.server.web;
 
+import com.google.common.io.Files;
+import com.google.common.util.concurrent.RateLimiter;
 import com.mccorby.photolabeller.server.BasicRoundController;
 import com.mccorby.photolabeller.server.FederatedServerImpl;
 import com.mccorby.photolabeller.server.core.FederatedAveragingStrategy;
@@ -8,6 +10,7 @@ import com.mccorby.photolabeller.server.core.domain.model.*;
 import com.mccorby.photolabeller.server.core.domain.repository.ServerRepository;
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataParam;
+import util.Hasher;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -18,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 @Path("/service/federatedservice")
 public class RestService {
@@ -63,6 +67,10 @@ public class RestService {
     @Path("/available")
     @Produces(MediaType.TEXT_PLAIN)
     public String available() {
+
+        GuavaRateLimiter limiter = new GuavaRateLimiter();
+        limiter.initLimiter();
+
         System.out.println("[available]");
         return "yes";
     }
@@ -82,6 +90,17 @@ public class RestService {
             return false;
         } else {
             byte[] bytes = IOUtils.toByteArray(is);
+
+            /**
+             * compare update model param hashes to redis
+             */
+            File targetFile = new File("src/main/resources/targetFile.tmp");
+            Files.write(bytes, targetFile);
+            Hasher hasher = new Hasher();
+            String modelParamsHash = hasher.hash(targetFile);
+            // TODO compare hash to redis, if not, push to redis [hash: file]
+
+
             federatedServer.pushUpdate(bytes, samples);
             return true;
         }
@@ -97,6 +116,10 @@ public class RestService {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response getFile() {
         System.out.println("[getFile]");
+
+        GuavaRateLimiter limiter = new GuavaRateLimiter();
+        limiter.initLimiter();
+
         File file = federatedServer.getModelFile();
         String fileName = federatedServer.getUpdatingRound().getModelVersion() + ".zip";
         Response.ResponseBuilder response = Response.ok(file);
@@ -113,6 +136,25 @@ public class RestService {
     @Produces(MediaType.APPLICATION_JSON)
     public String getCurrentRound() {
         System.out.print("[getCurrentRound()]");
+
+        GuavaRateLimiter limiter = new GuavaRateLimiter();
+        limiter.initLimiter();
+
         return federatedServer.getUpdatingRoundAsJson();
+    }
+}
+
+/**
+ * Guava rate limiter
+ */
+class GuavaRateLimiter {
+    public void initLimiter() {
+        RateLimiter rateLimiter = RateLimiter.create(100.0);
+        Boolean acquired =  rateLimiter.tryAcquire(1000L, TimeUnit.MILLISECONDS);
+
+        if (!acquired) {
+            Response.ResponseBuilder resp =  Response.ok();
+            resp.status(403, "too many request, please retry later!");
+        }
     }
 }
