@@ -16,11 +16,10 @@ sourceSets {
 
 dependencies {
     implementation kotlin_stdlib
-//    implementation "org.nd4j:nd4j-native-platform:1.0.0-beta7"
-//    implementation "org.deeplearning4j:deeplearning4j-core:1.0.0-beta7"
     implementation nd4j
     implementation dl4j_core
     implementation dl4j_nlp
+    implementation dl4j_zoo
     implementation datavec
     implementation slf4j
     implementation jackson
@@ -40,6 +39,8 @@ dependencies {
     implementation jersey_common
     implementation jersey_hk
     implementation jersey_multipart
+
+    implementation("com.google.guava:guava:31.1-jre")
 
     implementation kotlin_stdlib
 
