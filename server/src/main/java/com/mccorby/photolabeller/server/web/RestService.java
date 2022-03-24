@@ -98,7 +98,7 @@ public class RestService {
             Files.write(bytes, targetFile);
             Hasher hasher = new Hasher();
             String modelParamsHash = hasher.hash(targetFile);
-            // TODO compare hash to redis, if not, push to redis [hash: file]
+            // TODO compare hash to redis, if not exists, push to redis [hash: file]
 
 
             federatedServer.pushUpdate(bytes, samples);

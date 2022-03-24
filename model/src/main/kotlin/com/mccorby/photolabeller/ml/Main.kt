@@ -26,11 +26,11 @@ fun main(args: Array<String>) {
 //    val trainFileDir = "E:\\dataset\\MultiClassWeatherDataset" // https://www.kaggle.com/pratik2901/multiclass-weather-dataset
 
     // sp-weather
-        val numLabels = 5
-        val numEpochs = 5
-        val batchSize = 20
-        val saveFile = "sp_weather_federated_beta3-${Date().time}.zip"
-        val trainFileDir = "E:\\dataset\\SP-Weather" // https://github.com/ZebaKhanam91/SP-Weather
+//        val numLabels = 5
+//        val numEpochs = 5
+//        val batchSize = 20
+//        val saveFile = "sp_weather_federated_beta3-${Date().time}.zip"
+//        val trainFileDir = "E:\\dataset\\SP-Weather" // https://github.com/ZebaKhanam91/SP-Weather
 
     // customize cifar
 //        val numLabels = 10
@@ -55,11 +55,11 @@ fun main(args: Array<String>) {
 //        val trainFileDir = "E:\\dataset\\VehicleDetectionImageSet" // https://www.kaggle.com/brsdincer/vehicle-detection-image-set
 
     // Garbage Classification
-//    val numLabels = 6
-//    val numEpochs = 15
-//    val batchSize = 20
-//    val saveFile = "garbage_beta3-${Date().time}.zip"
-//    val trainFileDir = "E:\\dataset\\GarbageClassification" // https://www.kaggle.com/brsdincer/vehicle-detection-image-set
+    val numLabels = 6
+    val numEpochs = 15
+    val batchSize = 20
+    val saveFile = "garbage_beta3-${Date().time}.zip"
+    val trainFileDir = "E:\\dataset\\GarbageClassification" // https://www.kaggle.com/brsdincer/vehicle-detection-image-set
 
 
     val config = SharedConfig(32, 3, 100)
@@ -81,7 +81,8 @@ fun main(args: Array<String>) {
 //        val model = ModelSerializer.restoreMultiLayerNetwork(File("E:\\workspace\\phModelNew\\experiment_results\\weather_federated_beta3-1645674600781.zip"))
 //        val model = ModelSerializer.restoreMultiLayerNetwork(File("E:\\workspace\\phModelNew\\experiment_results\\cifar10_federated_beta3-1645755772576-0.5110-DONE.zip"))
 //        val model = ModelSerializer.restoreMultiLayerNetwork(File("E:\\workspace\\phModelNew\\experiment_results\\hv_weather_federated_beta3-1645769724702-0.6118-DONE.zip"))
-        val model = ModelSerializer.restoreMultiLayerNetwork(File("E:\\workspace\\phModelNew\\experiment_results\\sp_weather_federated_beta3-1645754818939-0.6664-DONE.zip"))
+//        val model = ModelSerializer.restoreMultiLayerNetwork(File("E:\\workspace\\phModelNew\\experiment_results\\sp_weather_federated_beta3-1645754818939-0.6664-DONE.zip"))
+        val model = ModelSerializer.restoreMultiLayerNetwork(File("E:\\workspace\\phModelNew\\experiment_results\\garbage_beta3-1646711956078.zip")) // 0.5244
         trainer.eval(model, batchSize, trainFileDir)
     }
 }
